@@ -1,0 +1,108 @@
+{% ckan_extends %}
+
+{% block extras %}
+  <tr>
+   <th scope="row" class="dataset-label">{{ _("Update Interval") }}</th>
+   <td class="dataset-details">{{ pkg_dict.update_interval_months }}</td>
+</tr>
+  {% if pkg_dict.known_uses_of_data %}
+    <tr>
+      <th scope="row" class="dataset-label">{{ _("Known uses of data") }}</th>
+      <td class="dataset-details">{{ pkg_dict.known_uses_of_data }}</td>
+    </tr>
+  {% endif %}
+  {% if pkg_dict.data_collection_procedures %}
+  <tr>
+    <th scope="row" class="dataset-label">{{ _("Data Collection Procedures") }}</th>
+    <td class="dataset-details">{{ pkg_dict.data_collection_procedures }}</td>
+  </tr>
+{% endif %}
+{% if pkg_dict.data_quality_procedures %}
+<tr>
+  <th scope="row" class="dataset-label">{{ _("Data Quality Procedures") }}</th>
+  <td class="dataset-details">{{ pkg_dict.data_quality_procedures }}</td>
+</tr>
+{% endif %}
+{% if pkg_dict.data_owner_organization %}
+<tr>
+  <th scope="row" class="dataset-label">{{ _("Data Owner Organization") }}</th>
+  <td class="dataset-details">{{ pkg_dict.data_owner_organization }}</td>
+</tr>
+{% endif %}
+{% if pkg_dict.data_owner_contact_name %}
+<tr>
+  <th scope="row" class="dataset-label">{{ _("Data Owner Contact Name") }}</th>
+  <td class="dataset-details">{{ pkg_dict.data_owner_contact_name }}</td>
+</tr>
+{% endif %}
+{% if pkg_dict.data_owner_contact_email %}
+<tr>
+  <th scope="row" class="dataset-label">{{ _("Data Owner Contact Email") }}</th>
+  <td class="dataset-details">{{ pkg_dict.data_owner_contact_email }}</td>
+</tr>
+{% endif %}
+{% if pkg_dict.data_collection_organization %}
+<tr>
+  <th scope="row" class="dataset-label">{{ _("Data Collection Organization") }}</th>
+  <td class="dataset-details">{{ pkg_dict.data_collection_organization }}</td>
+</tr>
+{% endif %}
+{% if pkg_dict.data_collection_contact_name %}
+<tr>
+  <th scope="row" class="dataset-label">{{ _("Data Collection Contact Name") }}</th>
+  <td class="dataset-details">{{ pkg_dict.data_collection_contact_name }}</td>
+</tr>
+{% endif %}
+{% if pkg_dict.data_collection_contact_email %}
+<tr>
+  <th scope="row" class="dataset-label">{{ _("Data Collection Contact Email") }}</th>
+  <td class="dataset-details">{{ pkg_dict.data_collection_contact_email }}</td>
+</tr>
+{% endif %}
+
+{% if pkg_dict.data_qaqc_organization %}
+<tr>
+  <th scope="row" class="dataset-label">{{ _("Data QA/QC Organization") }}</th>
+  <td class="dataset-details">{{ pkg_dict.data_qaqc_organization }}</td>
+</tr>
+{% endif %}
+{% if pkg_dict.data_qaqc_contact_name %}
+<tr>
+  <th scope="row" class="dataset-label">{{ _("Data QA/QC Contact Name") }}</th>
+  <td class="dataset-details">{{ pkg_dict.data_qaqc_contact_name }}</td>
+</tr>
+{% endif %}
+{% if pkg_dict.data_qaqc_contact_email %}
+<tr>
+  <th scope="row" class="dataset-label">{{ _("Data QA/QC Contact Email") }}</th>
+  <td class="dataset-details">{{ pkg_dict.data_qaqc_contact_email }}</td>
+</tr>
+{% endif %}
+
+{% if pkg_dict.funding_agency_organization %}
+<tr>
+  <th scope="row" class="dataset-label">{{ _("Funding Agency Organization") }}</th>
+  <td class="dataset-details">{{ pkg_dict.funding_agency_organization }}</td>
+</tr>
+{% endif %}
+{% if pkg_dict.funding_agency_contact_name %}
+<tr>
+  <th scope="row" class="dataset-label">{{ _("Funding Agency Contact Name") }}</th>
+  <td class="dataset-details">{{ pkg_dict.funding_agency_contact_name }}</td>
+</tr>
+{% endif %}
+{% if pkg_dict.funding_agency_contact_email %}
+<tr>
+  <th scope="row" class="dataset-label">{{ _("Funding Agency Contact Email") }}</th>
+  <td class="dataset-details">{{ pkg_dict.funding_agency_contact_email }}</td>
+</tr>
+{% endif %}
+{% if pkg_dict.coordinate_system %}
+<tr>
+  <th scope="row" class="dataset-label">{{ _("Coordinate System") }}</th>
+  <td class="dataset-details">{{ pkg_dict.coordinate_system }}</td>
+</tr>
+{% endif %}
+
+
+{% endblock %}
