@@ -5,7 +5,7 @@ import ckan.plugins.toolkit as tk
 
 # from ckan.plugins.toolkit import Invalid
 
-IGNORE_MISSING = tk.get_validator('IGNORE_MISSING')
+IGNORE_MISSING = tk.get_validator('ignore_missing')
 CONVERT_TO_EXTRAS = tk.get_converter('convert_to_extras')
 CONVERT_FROM_EXTRAS = tk.get_converter('convert_from_extras')
 EMAIL_VALIDATOR = tk.get_validator('email_validator')
