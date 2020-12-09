@@ -57,7 +57,7 @@ class WdifieldsPlugin(p.SingletonPlugin, tk.DefaultDatasetForm):
         return schema
 
     def show_package_schema(self):
-        schema = super(WdifieldsPlugin, self).show_package_schema(),
+        schema = super(WdifieldsPlugin, self).show_package_schema()
 
         schema.update({
             'known_uses_of_data': [CONVERT_FROM_EXTRAS, IGNORE_MISSING],
