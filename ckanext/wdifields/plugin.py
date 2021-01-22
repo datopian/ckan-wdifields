@@ -60,6 +60,7 @@ class WdifieldsPlugin(p.SingletonPlugin, tk.DefaultDatasetForm):
         schema = super(WdifieldsPlugin, self).show_package_schema()
 
         schema.update({
+            'update_interval_months': [CONVERT_FROM_EXTRAS, IGNORE_MISSING],
             'known_uses_of_data': [CONVERT_FROM_EXTRAS, IGNORE_MISSING],
             'data_collection_procedures': [CONVERT_FROM_EXTRAS, IGNORE_MISSING],
             'data_quality_procedures': [CONVERT_FROM_EXTRAS, IGNORE_MISSING],
