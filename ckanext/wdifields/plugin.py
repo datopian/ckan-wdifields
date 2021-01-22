@@ -35,7 +35,7 @@ class WdifieldsPlugin(p.SingletonPlugin, tk.DefaultDatasetForm):
     def _custom_schema_hook(self, schema):
         schema.update(
             {
-                'title': [NOT_EMPTY, CONVERT_TO_EXTRAS, UNICODE],
+                # 'title': [NOT_EMPTY, CONVERT_TO_EXTRAS, UNICODE],
                 'update_interval_months': [IGNORE_MISSING, CONVERT_TO_EXTRAS, UNICODE],
                 'known_uses_of_data': [IGNORE_MISSING, CONVERT_TO_EXTRAS, UNICODE],
                 'data_collection_procedures': [IGNORE_MISSING, CONVERT_TO_EXTRAS, UNICODE],
@@ -60,6 +60,7 @@ class WdifieldsPlugin(p.SingletonPlugin, tk.DefaultDatasetForm):
         schema = super(WdifieldsPlugin, self).show_package_schema()
 
         schema.update({
+
             'update_interval_months': [CONVERT_FROM_EXTRAS, IGNORE_MISSING],
             'known_uses_of_data': [CONVERT_FROM_EXTRAS, IGNORE_MISSING],
             'data_collection_procedures': [CONVERT_FROM_EXTRAS, IGNORE_MISSING],
