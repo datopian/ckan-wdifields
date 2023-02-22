@@ -11,6 +11,7 @@ CONVERT_FROM_EXTRAS = tk.get_converter('convert_from_extras')
 EMAIL_VALIDATOR = tk.get_validator('email_validator')
 NOT_EMPTY = tk.get_validator('not_empty')
 UNICODE = tk.get_validator('unicode_safe')
+URL_VALIDATOR = tk.get_validator('url_validator')
 
 
 # def is_required(value):
@@ -36,49 +37,73 @@ class WdifieldsPlugin(p.SingletonPlugin, tk.DefaultDatasetForm):
         schema.update(
             {
                 # 'title': [NOT_EMPTY, CONVERT_TO_EXTRAS, UNICODE],
-                'update_interval_months': [IGNORE_MISSING, CONVERT_TO_EXTRAS, UNICODE],
-                'known_uses_of_data': [IGNORE_MISSING, CONVERT_TO_EXTRAS, UNICODE],
-                'data_collection_procedures': [IGNORE_MISSING, CONVERT_TO_EXTRAS, UNICODE],
-                'data_quality_procedures': [IGNORE_MISSING, CONVERT_TO_EXTRAS, UNICODE],
-                'data_owner_organization': [NOT_EMPTY, CONVERT_TO_EXTRAS, UNICODE],
-                'data_owner_contact_name': [NOT_EMPTY, CONVERT_TO_EXTRAS, UNICODE],
-                'data_owner_contact_email': [EMAIL_VALIDATOR, CONVERT_TO_EXTRAS, UNICODE],
-                'data_collection_organization': [IGNORE_MISSING, CONVERT_TO_EXTRAS, UNICODE],
-                'data_collection_contact_name': [IGNORE_MISSING, CONVERT_TO_EXTRAS, UNICODE],
-                'data_collection_contact_email': [IGNORE_MISSING, CONVERT_TO_EXTRAS, UNICODE, EMAIL_VALIDATOR],
-                'data_qaqc_organization': [IGNORE_MISSING, CONVERT_TO_EXTRAS, UNICODE],
-                'data_qaqc_contact_name': [IGNORE_MISSING, CONVERT_TO_EXTRAS, UNICODE],
-                'data_qaqc_contact_email': [IGNORE_MISSING, CONVERT_TO_EXTRAS, UNICODE, EMAIL_VALIDATOR],
-                'funding_agency_organization': [IGNORE_MISSING, CONVERT_TO_EXTRAS, UNICODE],
-                'funding_agency_contact_name': [IGNORE_MISSING, CONVERT_TO_EXTRAS, UNICODE],
-                'funding_agency_contact_email': [IGNORE_MISSING, CONVERT_TO_EXTRAS, UNICODE, EMAIL_VALIDATOR],
-                'coordinate_system': [IGNORE_MISSING, CONVERT_TO_EXTRAS, UNICODE]
+                'source_url': [IGNORE_MISSING, CONVERT_TO_EXTRAS, UNICODE],
+                'division': [IGNORE_MISSING, CONVERT_TO_EXTRAS, UNICODE],
+                'subdivision': [IGNORE_MISSING, CONVERT_TO_EXTRAS, UNICODE],
+                'contact_name': [NOT_EMPTY, CONVERT_TO_EXTRAS, UNICODE],
+                'contact_email': [NOT_EMPTY, EMAIL_VALIDATOR, CONVERT_TO_EXTRAS, UNICODE],
+                'contact_phone': [IGNORE_MISSING, CONVERT_TO_EXTRAS, UNICODE],
             })
+        
+        schema['resources'].update({
+            # 'tag_string': [NOT_EMPTY, CONVERT_TO_EXTRAS, UNICODE],
+            'resource_division' : [IGNORE_MISSING, CONVERT_TO_EXTRAS, UNICODE],
+            'resource_subdivision' : [IGNORE_MISSING, CONVERT_TO_EXTRAS, UNICODE],
+            'data_source' : [IGNORE_MISSING, CONVERT_TO_EXTRAS, UNICODE],
+            'resource_contact_name': [IGNORE_MISSING, CONVERT_TO_EXTRAS, UNICODE],
+            'resource_contact_email': [IGNORE_MISSING, EMAIL_VALIDATOR, CONVERT_TO_EXTRAS, UNICODE],
+            'resource_contact_phone': [IGNORE_MISSING, CONVERT_TO_EXTRAS, UNICODE],
+            'data_uses': [IGNORE_MISSING, CONVERT_TO_EXTRAS, UNICODE],
+            'collection_procedures': [IGNORE_MISSING, CONVERT_TO_EXTRAS, UNICODE],
+            'collection_timeframe': [IGNORE_MISSING, CONVERT_TO_EXTRAS, UNICODE],
+            'collection_frequency': [IGNORE_MISSING, CONVERT_TO_EXTRAS, UNICODE],
+            'preparation_method': [IGNORE_MISSING, CONVERT_TO_EXTRAS, UNICODE],
+            'publish_method': [IGNORE_MISSING, CONVERT_TO_EXTRAS, UNICODE],
+            'publish_frequency': [IGNORE_MISSING, CONVERT_TO_EXTRAS, UNICODE],
+            'quality_procedures': [IGNORE_MISSING, CONVERT_TO_EXTRAS, UNICODE],
+            'resource_version': [IGNORE_MISSING, CONVERT_TO_EXTRAS, UNICODE],
+            'license_id': [IGNORE_MISSING, CONVERT_TO_EXTRAS, UNICODE],
+            'geographic_location': [IGNORE_MISSING, CONVERT_TO_EXTRAS, UNICODE],
+            'coordinate_system': [IGNORE_MISSING, CONVERT_TO_EXTRAS, UNICODE],
+            'data_dictionary': [IGNORE_MISSING, CONVERT_TO_EXTRAS, UNICODE],
+        })
         return schema
 
     def show_package_schema(self):
         schema = super(WdifieldsPlugin, self).show_package_schema()
 
         schema.update({
-
-            'update_interval_months': [CONVERT_FROM_EXTRAS, IGNORE_MISSING],
-            'known_uses_of_data': [CONVERT_FROM_EXTRAS, IGNORE_MISSING],
-            'data_collection_procedures': [CONVERT_FROM_EXTRAS, IGNORE_MISSING],
-            'data_quality_procedures': [CONVERT_FROM_EXTRAS, IGNORE_MISSING],
-            'data_owner_organization': [CONVERT_FROM_EXTRAS, IGNORE_MISSING],
-            'data_owner_contact_name': [CONVERT_FROM_EXTRAS, IGNORE_MISSING],
-            'data_owner_contact_email': [CONVERT_FROM_EXTRAS, IGNORE_MISSING],
-            'data_collection_organization': [CONVERT_FROM_EXTRAS, IGNORE_MISSING],
-            'data_collection_contact_name': [CONVERT_FROM_EXTRAS, IGNORE_MISSING],
-            'data_collection_contact_email': [CONVERT_FROM_EXTRAS, IGNORE_MISSING],
-            'data_qaqc_organization': [CONVERT_FROM_EXTRAS, IGNORE_MISSING],
-            'data_qaqc_contact_name': [CONVERT_FROM_EXTRAS, IGNORE_MISSING],
-            'data_qaqc_contact_email': [CONVERT_FROM_EXTRAS, IGNORE_MISSING],
-            'funding_agency_organization': [CONVERT_FROM_EXTRAS, IGNORE_MISSING],
-            'funding_agency_contact_name': [CONVERT_FROM_EXTRAS, IGNORE_MISSING],
-            'funding_agency_contact_email': [CONVERT_FROM_EXTRAS, IGNORE_MISSING],
-            'coordinate_system': [CONVERT_FROM_EXTRAS, IGNORE_MISSING]
+            'source_url': [CONVERT_FROM_EXTRAS, IGNORE_MISSING],
+            'division': [CONVERT_FROM_EXTRAS, IGNORE_MISSING],
+            'subdivision': [CONVERT_FROM_EXTRAS, IGNORE_MISSING],
+            'contact_name': [CONVERT_FROM_EXTRAS, IGNORE_MISSING],
+            'contact_email': [CONVERT_FROM_EXTRAS, IGNORE_MISSING],
+            'contact_phone': [CONVERT_FROM_EXTRAS, IGNORE_MISSING],
         })
+
+        schema['resources'].update({
+            # 'tag_string': [CONVERT_FROM_EXTRAS, IGNORE_MISSING],
+            'resource_division' : [CONVERT_FROM_EXTRAS, IGNORE_MISSING],
+            'resource_subdivision' : [CONVERT_FROM_EXTRAS, IGNORE_MISSING],
+            'data_source' : [CONVERT_FROM_EXTRAS, IGNORE_MISSING],
+            'resource_contact_name': [CONVERT_FROM_EXTRAS, IGNORE_MISSING],
+            'resource_contact_email': [CONVERT_FROM_EXTRAS, IGNORE_MISSING],
+            'resource_contact_phone': [CONVERT_FROM_EXTRAS, IGNORE_MISSING],
+            'data_uses': [CONVERT_FROM_EXTRAS, IGNORE_MISSING],
+            'collection_procedures': [CONVERT_FROM_EXTRAS, IGNORE_MISSING],
+            'collection_timeframe': [CONVERT_FROM_EXTRAS, IGNORE_MISSING],
+            'collection_frequency': [CONVERT_FROM_EXTRAS, IGNORE_MISSING],
+            'preparation_method': [CONVERT_FROM_EXTRAS, IGNORE_MISSING],
+            'publish_method': [CONVERT_FROM_EXTRAS, IGNORE_MISSING],
+            'publish_frequency': [CONVERT_FROM_EXTRAS, IGNORE_MISSING],
+            'quality_procedures': [CONVERT_FROM_EXTRAS, IGNORE_MISSING],
+            'resource_version': [CONVERT_FROM_EXTRAS, IGNORE_MISSING],
+            'license_id': [CONVERT_FROM_EXTRAS, IGNORE_MISSING],
+            'geographic_location': [CONVERT_FROM_EXTRAS, IGNORE_MISSING],
+            'coordinate_system': [CONVERT_FROM_EXTRAS, IGNORE_MISSING],
+            'data_dictionary': [CONVERT_FROM_EXTRAS, IGNORE_MISSING],
+        })
+        
         return schema
 
     def is_fallback(self):

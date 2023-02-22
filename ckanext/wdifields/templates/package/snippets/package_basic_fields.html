@@ -1,123 +1,132 @@
-
-
 {% import 'macros/form.html' as form %}
 
 {% block package_basic_fields_title %}
-{{ form.input('title', id='field-title', label=_('Title'), placeholder=_('eg. A descriptive title'), value=data.title, error=errors.title, classes=['control-full', 'control-large'], attrs={'data-module': 'slug-preview-target', 'class': 'form-control'}) }}
+  {{ form.input('title', id='field-title', label=_('Title'), placeholder=_("A good title includes 'what', 'where', and 'when' (Example: Point Locations of Wind Turbines in Eddy County, Derived from  2010 NAIP Imagery)"), value=data.title, error=errors.title, classes=['control-full', 'control-large'], attrs={'data-module': 'slug-preview-target', 'class': 'form-control'}) }}
 {% endblock %}
 
 {% block package_basic_fields_url %}
-{% set prefix = h.url_for(controller='package', action='read', id='') %}
-{% set domain = h.url_for(controller='package', action='read', id='', qualified=true) %}
-{% set domain = domain|replace("http://", "")|replace("https://", "") %}
-{% set attrs = {'data-module': 'slug-preview-slug', 'data-module-prefix': domain, 'data-module-placeholder': '<dataset>', 'class': 'form-control input-sm'} %}
+  {% set prefix = h.url_for(controller='package', action='read', id='') %}
+  {% set domain = h.url_for(controller='package', action='read', id='', qualified=true) %}
+  {% set domain = domain|replace("http://", "")|replace("https://", "") %}
+  {% set attrs = {'data-module': 'slug-preview-slug', 'data-module-prefix': domain, 'data-module-placeholder': '<dataset>', 'class': 'form-control input-sm'} %}
 
-  {{ form.prepend('name', id='field-name', label=_('URL'), prepend=prefix, placeholder=_('eg. my-dataset'), value=data.name, error=errors.name, attrs=attrs, is_required=true) }}
-  {% endblock %}
+  {{ form.prepend('name', id='field-name', label=_('URL'), prepend=prefix, placeholder=_(''), value=data.name, error=errors.name, attrs=attrs, is_required=true) }}
+{% endblock %}
 
-  {% block package_basic_fields_description %}
-  {{ form.markdown('notes', id='field-notes', label=_('Description'), placeholder=_('Include details about the what, why, where, when, and how aspects of the data. Please describe whether this data is used for operations, research, regulatory, or other decision purposes'), value=data.notes, error=errors.notes) }}
-  {% endblock %}
+{% block package_basic_fields_description %}
+  {{ form.markdown('notes', id='field-notes', label=_('Description'), placeholder=_('Details about the what, why, when, and how aspects pf the data. Please describe whether the data is used for operations, research, regulatory, or other decision purposes.'), value=data.notes, error=errors.notes, is_required=True) }}
+{% endblock %}
 
-  {% block package_basic_fields_custom %}{% endblock %}
-  {{ form.textarea('known_uses_of_data', label=_('Known uses of data'), id='field-known_uses_of_data', placeholder=_('If certain agencies are known downstream consumers of the data, then please list brief details about who they are and what aspects of the data is of interest to them.'), value=data.known_uses_of_data, error=errors.known_uses_of_data, classes=['control-medium']) }}
-  {% block package_basic_fields_license %}
-  
-  <div class="form-group">
-    {% set error = errors.license_id %}
-    <label class="control-label" for="field-license">{{ _("License") }}</label>
+{% block package_basic_fields_tags %}
+  {% set tag_attrs = {'data-module': 'autocomplete', 'data-module-tags': '', 'data-module-source': '/api/2/util/tag/autocomplete?incomplete=?'} %}
+  {{ form.input('tag_string', id='field-tags', label=_('Keywords'), placeholder=_('Words or phrases that help people find the data. '), value=data.tag_string, error=errors.tags, classes=['control-full'], attrs=tag_attrs) }}
+{% endblock %}
+
+{% set dataset_has_organization = data.owner_org or data.group_id %}
+{% set organizations_available = h.organizations_available('create_dataset') %}
+{% set user_is_sysadmin = h.check_access('sysadmin') %}
+{% set show_organizations_selector = organizations_available %}
+{% set show_visibility_selector = dataset_has_organization or (organizations_available and (user_is_sysadmin or dataset_is_draft)) %}
+
+{{ form.input('source_url', label=_("Source URL"), id='source-url', type='url', placeholder=_('Associated website where the data, or information about the data, can be found.'), value=data.source_url) }}
+
+{% if show_organizations_selector and show_visibility_selector %}
+<div data-module="dataset-visibility">
+  {% endif %}
+
+  {% if show_organizations_selector %}
+  {% set existing_org = data.owner_org or data.group_id %}
+  <div class="form-group control-medium">
+    <label for="field-organizations" class="control-label">{{ _('Organization') }}</label>
     <div class="controls">
-      <div class="row">
-        <div class="col-md-6">
-          <select id="field-license" name="license_id" data-module="autocomplete">
-            {% set existing_license_id = data.get('license_id') %}
-            {% for license_id, license_desc in h.license_options(existing_license_id) %}
-            <option value="{{ license_id }}" {% if "notspecified" == license_id %}selected="selected"{% endif %}>{{ license_desc }}</option>
-            {% endfor %}
-          </select>
-          {% if error %}<span class="error-block">{{ error }}</span>{% endif %}
-        </div>
-        <div class="col-md-6">
-          <span class="info-block info-inline">
-            <i class="fa fa-info-circle"></i>
-            {% trans %}
-            License definitions and additional information can be found
-            at <a href="http://opendefinition.org/licenses/">opendefinition.org</a>
-            {% endtrans %}
-          </span>
-        </div>
-      </div>
+      <select id="field-organizations" name="owner_org" data-module="autocomplete">
+        {% if h.check_config_permission('create_unowned_dataset') %}
+        <option value="" {% if not selected_org and data.id %} selected="selected" {% endif %}>{{ _('No organization') }}</option>
+        {% endif %}
+        {% for organization in organizations_available %}
+        {# get out first org from users list only if there is not an existing org #}
+        {% set selected_org = (existing_org and existing_org == organization.id) or (not existing_org and not data.id and organization.id == organizations_available[0].id) %}
+        <option value="{{ organization.id }}" {% if selected_org %} selected="selected" {% endif %} placeholder='Organization with which the data should be associated'>{{ organization.display_name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+  </div>
+  {% endif %}
+
+  {% block package_metadata_fields_visibility %}
+  <div class="form-group control-medium">
+    <label for="field-private" class="control-label">{{ _('Visibility') }}</label>
+    <div class="controls">
+      <select id="field-private" name="private" class="form-control">
+        {% for option in [('False', _('Public')), ('True', _('Private'))] %}
+        <option value="{{ option[0] }}" {% if option[0] == data.private|trim %}selected="selected"{% endif %}>{{ option[1] }}</option>
+        {% endfor %}
+      </select>
     </div>
   </div>
   {% endblock %}
-  
- 
 
-  {% set dataset_has_organization = data.owner_org or data.group_id %}
-  {% set organizations_available = h.organizations_available('create_dataset') %}
-  {% set user_is_sysadmin = h.check_access('sysadmin') %}
-  {% set show_organizations_selector = organizations_available %}
-  {% set show_visibility_selector = dataset_has_organization or (organizations_available and (user_is_sysadmin or dataset_is_draft)) %}
+{{ form.input('division', label=_("Division"), id='division', placeholder=_('Division, bureau, program, committee or commission, etc. within the organization. If applicable.'), value=data.division) }}
+{{ form.input('subdivision', label=_("Subdivision"), id='subdivision', placeholder=_('Subdivision, bureau, program, committee or commission, etc. within the division. If applicable.'), value=data.subdivision) }}
+{{ form.input('contact_name', label=_("Contact Name"), id='contact_name', placeholder=_('Point of contact name for data steward'), value=data.contact_name) }}
+{{ form.input('contact_email', label=_("Contact Email"), id='contact_email', placeholder=_('Point of contact email for data steward'), value=data.contact_email) }}
+{{ form.input('contact_phone', label=_("Contact Phone"), id='contact_phone', placeholder=_('Point of contact phone for data steward'), value=data.contact_phone) }}
 
-  {% if show_organizations_selector and show_visibility_selector %}
-  <div data-module="dataset-visibility">
-    {% endif %}
-
-    {% if show_organizations_selector %}
-    {% set existing_org = data.owner_org or data.group_id %}
-    <div class="form-group control-medium">
-      <label for="field-organizations" class="control-label">{{ _('Organization') }}</label>
-      <div class="controls">
-        <select id="field-organizations" name="owner_org" data-module="autocomplete">
-          {% if h.check_config_permission('create_unowned_dataset') %}
-          <option value="" {% if not selected_org and data.id %} selected="selected" {% endif %}>{{ _('No organization') }}</option>
-          {% endif %}
-          {% for organization in organizations_available %}
-          {# get out first org from users list only if there is not an existing org #}
-          {% set selected_org = (existing_org and existing_org == organization.id) or (not existing_org and not data.id and organization.id == organizations_available[0].id) %}
-          <option value="{{ organization.id }}" {% if selected_org %} selected="selected" {% endif %}>{{ organization.display_name }}</option>
-          {% endfor %}
-        </select>
-      </div>
-    </div>
-    {% endif %}
-  
-    {% block package_metadata_fields_url %}
+{% block package_metadata_fields_url %}
+  {% if data.url %}
     {{ form.input('url', label=_('Source'), id='field-url', placeholder=_('SDWIS'), value=data.url, error=errors.url, classes=['control-medium']) }}
-  {% endblock %}
-
-
+  {% endif %}
+{% endblock %}
+{% if data.update_interval_month %}
   {{ form.input('update_interval_months', label=_("Update Interval (Months)"), id='field-update_interval_month', placeholder=_('A metric of how often the data is updated'), value=data.update_interval_month) }}
+{% endif %}
+{% if data.data_owner_organization %}
   {{ form.input('data_owner_organization', label=_('Data Owner Organization'), id='field-data_owner_organization', placeholder=_('Organization that is responsible for the data'), value=data.data_owner_organization, error=errors.data_owner_organization, classes=['control-medium'], is_required=true) }}
-  {{ form.input('data_owner_contact_name', label=_('Data Owner Contact Name'), id='field-data_owner_contact_name', placeholder=_('Name of person or role responsible for the data'), value=data.data_owner_contact_name, error=errors.data_owner_contact_name, classes=['control-medium'], is_required=true) }}
+{% endif %}
+{% if data.data_owner_contact_name %}
+{{ form.input('data_owner_contact_name', label=_('Data Owner Contact Name'), id='field-data_owner_contact_name', placeholder=_('Name of person or role responsible for the data'), value=data.data_owner_contact_name, error=errors.data_owner_contact_name, classes=['control-medium'], is_required=true) }}
+{% endif %}
+{% if data.data_owner_contact_email %}
   {{ form.input('data_owner_contact_email', label=_('Data Owner Contact Email'), id='field-data_owner_contact_email', placeholder=_('Email address of person or role responsible for the data'), value=data.data_owner_contact_email, error=errors.data_owner_contact_email, classes=['control-medium']) }}
-  {{ form.input('data_collection_organization', label=_('Data Collection Organization'), id='field-data_collection_organization', placeholder=_('The organization that collected the data'), value=data.data_collection_organization, error=errors.data_collection_organization, classes=['control-medium']) }}
-  {{ form.input('data_collection_contact_name', label=_('Data Collection Contact Name'), id='field-data_collection_contact_name', placeholder=_('Name of person or role responsible for the collection of the data'), value=data.data_collection_contact_name, error=errors.data_collection_contact_name, classes=['control-medium']) }}
+{% endif %}
+{% if data.data_collection_organization %}
+{{ form.input('data_collection_organization', label=_('Data Collection Organization'), id='field-data_collection_organization', placeholder=_('The organization that collected the data'), value=data.data_collection_organization, error=errors.data_collection_organization, classes=['control-medium']) }}
+{% endif %}
+{% if data.data_collection_contact_name %}
+{{ form.input('data_collection_contact_name', label=_('Data Collection Contact Name'), id='field-data_collection_contact_name', placeholder=_('Name of person or role responsible for the collection of the data'), value=data.data_collection_contact_name, error=errors.data_collection_contact_name, classes=['control-medium']) }}
+{% endif %}
+{% if data.data_collection_contact_email %}
   {{ form.input('data_collection_contact_email', label=_('Data Collection Contact Email'), id='field-data_collection_contact_email', placeholder=_('Email address of person or role responsible for the collection of the data'), value=data.data_collection_contact_email, error=errors.data_collection_contact_email, classes=['control-medium']) }}
-  
+{% endif %}
+{% if data.data_qaqc_organization %}
   {{ form.input('data_qaqc_organization', label=_('Data QA/QC Organization'), id='field-data_qaqc_organization', placeholder=_('The organization that QA/QC’d the data'), value=data.data_qaqc_organization, error=errors.data_qaqc_organization, classes=['control-medium']) }}
+{% endif %}
+{% if data.data_qaqc_contact_name %}
   {{ form.input('data_qaqc_contact_name', label=_('Data QA/QC Contact Name'), id='field-data_qaqc_contact_name', placeholder=_('Name of person or role responsible for the QA/QC of the data'), value=data.data_qaqc_contact_name, error=errors.data_qaqc_contact_name, classes=['control-medium']) }}
+{% endif %}
+{% if data.data_qaqc_contact_email %}
   {{ form.input('data_qaqc_contact_email', label=_('Data QA/QC Contact Email'), id='field-data_qaqc_contact_email', placeholder=_('Email address of person or role responsible for the QA/QC of the data'), value=data.data_qaqc_contact_email, error=errors.data_qaqc_contact_email, classes=['control-medium']) }}
-
+{% endif %}
+{% if data.funding_agency_organization %}
   {{ form.input('funding_agency_organization', label=_('Funding Agency Organization'), id='field-funding_agency_organization', placeholder=_('The organization that funded the acquisition of the data'), value=data.funding_agency_organization, error=errors.funding_agency_organization, classes=['control-medium']) }}
+{% endif %}
+{% if data.funding_agency_contact_name %}
   {{ form.input('funding_agency_contact_name', label=_('Funding Agency Contact Name'), id='field-funding_agency_contact_name', placeholder=_('Name of person or role responsible for the funding of the data'), value=data.funding_agency_contact_name, error=errors.funding_agency_contact_name, classes=['control-medium']) }}
+{% endif %}
+{% if data.funding_agency_contact_email %}
   {{ form.input('funding_agency_contact_email', label=_('Funding Agency Contact Email'), id='field-funding_agency_contact_email', placeholder=_('Email address of person or role responsible for the funding of the data'), value=data.funding_agency_contact_email, error=errors.funding_agency_contact_email, classes=['control-medium']) }}
+{% endif %}
+{% if data.coordinate_system %}
   {{ form.input('coordinate_system', label=_('Coordinate System'), id='field-coordinate_system', placeholder=_('eg, EPSG:26913 or NAD83 / UTM zone 13N'), value=data.coordinate_system, error=errors.coordinate_system, classes=['control-medium']) }}
-
-  
-
+{% endif %}
+{% if data.data_collection_procedures %}
   {{ form.textarea('data_collection_procedures', label=_('Data Collection Procedures'), id='field-data_collection_procedures', placeholder=_('Please include brief details about how the data was collected. If certain protocols were followed, please include relevant details and DOI/URL if possible.'), value=data.data_collection_procedures, error=errors.data_collection_procedures, classes=['control-medium']) }}
+{% endif %}
+{% if data.data_quality_procedures %}
   {{ form.textarea('data_quality_procedures', label=_('Data Quality Procedures'), id='field-data_quality_procedures', placeholder=_('Please include brief details about how the data quality was reviewed. If certain protocols were followed, please include relevant details and DOI/URL if possible.'), value=data.data_quality_procedures, error=errors.data_quality_procedures, classes=['control-medium']) }}
-  
-
-  
+{% endif %}
 
 
-
-  {% block package_basic_fields_tags %}
-  {% set tag_attrs = {'data-module': 'autocomplete', 'data-module-tags': '', 'data-module-source': '/api/2/util/tag/autocomplete?incomplete=?'} %}
-  {{ form.input('tag_string', id='field-tags', label=_('Tags'), placeholder=_('eg. economy, mental health, government'), value=data.tag_string, error=errors.tags, classes=['control-full'], attrs=tag_attrs) }}
-  {% endblock %}
 
 
 
@@ -128,22 +137,6 @@
   {% endif %}
 
   {% set dataset_is_draft = data.get('state', 'draft').startswith('draft') or data.get('state', 'none') ==  'none' %}
-
-
-    {% if show_visibility_selector %}
-    {% block package_metadata_fields_visibility %}
-    <div style="display:none"class="form-group control-medium">
-      <label for="field-private" class="control-label">{{ _('Visibility') }}</label>
-      <div class="controls">
-        <select id="field-private" name="private" class="form-control">
-          {% for option in [('True', _('Private')), ('False', _('Public'))] %}
-          <option value="False" {% if option[0] == data.private|trim %}selected="selected"{% endif %}>{{ option[1] }}</option>
-          {% endfor %}
-        </select>
-      </div>
-    </div>
-    {% endblock %}
-    {% endif %}
 
     {% if show_organizations_selector and show_visibility_selector %}
   </div>
