@@ -37,6 +37,8 @@ class WdifieldsPlugin(p.SingletonPlugin, tk.DefaultDatasetForm):
         schema.update(
             {
                 # 'title': [NOT_EMPTY, CONVERT_TO_EXTRAS, UNICODE],
+                'title': [NOT_EMPTY, UNICODE],
+                'notes': [NOT_EMPTY, UNICODE],
                 'source_url': [IGNORE_MISSING, CONVERT_TO_EXTRAS, UNICODE],
                 'division': [IGNORE_MISSING, CONVERT_TO_EXTRAS, UNICODE],
                 'subdivision': [IGNORE_MISSING, CONVERT_TO_EXTRAS, UNICODE],
@@ -73,11 +75,12 @@ class WdifieldsPlugin(p.SingletonPlugin, tk.DefaultDatasetForm):
         schema = super(WdifieldsPlugin, self).show_package_schema()
 
         schema.update({
+            'title': [NOT_EMPTY, IGNORE_MISSING],
             'source_url': [CONVERT_FROM_EXTRAS, IGNORE_MISSING],
             'division': [CONVERT_FROM_EXTRAS, IGNORE_MISSING],
             'subdivision': [CONVERT_FROM_EXTRAS, IGNORE_MISSING],
-            'contact_name': [CONVERT_FROM_EXTRAS, IGNORE_MISSING],
-            'contact_email': [CONVERT_FROM_EXTRAS, IGNORE_MISSING],
+            'contact_name': [CONVERT_FROM_EXTRAS, NOT_EMPTY],
+            'contact_email': [CONVERT_FROM_EXTRAS, NOT_EMPTY],
             'contact_phone': [CONVERT_FROM_EXTRAS, IGNORE_MISSING],
         })
 

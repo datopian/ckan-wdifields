@@ -68,8 +68,8 @@
 
 {{ form.input('division', label=_("Division"), id='division', placeholder=_('Division, bureau, program, committee or commission, etc. within the organization. If applicable.'), value=data.division) }}
 {{ form.input('subdivision', label=_("Subdivision"), id='subdivision', placeholder=_('Subdivision, bureau, program, committee or commission, etc. within the division. If applicable.'), value=data.subdivision) }}
-{{ form.input('contact_name', label=_("Contact Name"), id='contact_name', placeholder=_('Point of contact name for data steward'), value=data.contact_name) }}
-{{ form.input('contact_email', label=_("Contact Email"), id='contact_email', placeholder=_('Point of contact email for data steward'), value=data.contact_email) }}
+{{ form.input('contact_name', label=_("Contact Name"), id='contact_name', placeholder=_('Point of contact name for data steward'), value=data.contact_name, is_required=True) }}
+{{ form.input('contact_email', label=_("Contact Email"), id='contact_email', placeholder=_('Point of contact email for data steward'), value=data.contact_email, is_required=True) }}
 {{ form.input('contact_phone', label=_("Contact Phone"), id='contact_phone', placeholder=_('Point of contact phone for data steward'), value=data.contact_phone) }}
 
 {% block package_metadata_fields_url %}
