@@ -1,0 +1,154 @@
+{% import 'macros/form.html' as form %}
+
+{% set data = data or {} %}
+{% set errors = errors or {} %}
+{% set action = form_action or h.url_for(controller='package', action='new_resource', id=pkg_name) %}
+
+
+<form id="resource-edit" class="dataset-form dataset-resource-form" method="post" action="{{ action }}" data-module="basic-form resource-form" enctype="multipart/form-data">
+
+  {% block stages %}
+    {# An empty stages variable will not show the stages #}
+    {% if stage %}
+      {{ h.snippet('package/snippets/stages.html', stages=stage, pkg_name=pkg_name) }}
+    {% endif %}
+  {% endblock %}
+
+  {% block errors %}{{ form.errors(error_summary) }}{% endblock %}
+
+  <input name="id" value="{{ data.id }}" type="hidden"/>
+
+  {% block basic_fields %}
+    {% block basic_fields_url %}
+      {% set is_upload = (data.url_type == 'upload') %}
+      {{ form.image_upload(data, errors, field_url='url', field_upload='upload', field_clear='clear_upload',
+         is_upload_enabled=h.uploads_enabled(), is_url=data.url and not is_upload, is_upload=is_upload,
+         upload_label=_('Data'), url_label=_('URL'), placeholder=_('http://example.com/external-data.csv'), field_name='name') }}
+    {% endblock %}
+
+    {% block basic_fields_name %}
+      {{ form.input('name', id='field-name', label=_('Name'), placeholder=_('eg. January 2011 Gold Prices'), value=data.name, error=errors.name, is_required=True, classes=['control-full']) }}
+    {% endblock %}
+
+    {% block basic_fields_description %}
+      {{ form.markdown('description', id='field-description', label=_('Description'), placeholder=_('Details about the what, why, when, and how aspects of the data. Please describe whether the data is used for operations, research, regulatory, or other decision purposes.'), value=data.description, error=errors.description, is_required=True) }}
+    {% endblock %}
+
+    <!-- {% block package_basic_fields_tags %}
+        {% set tag_attrs = {'data-module': 'autocomplete', 'data-module-tags': '', 'data-module-source': '/api/2/util/tag/autocomplete?incomplete=?'} %}
+        {{ form.input('tag_string', id='field-tags', label=_('Keywords'), placeholder=_('Words or phrases that help people find the data. '), value=data.tag_string, error=errors.tags, classes=['control-full'], attrs=tag_attrs) }}
+    {% endblock %} -->
+
+    {{ form.input('resource_division', label=_("Division"), id='resource_division', placeholder=_('Division, bureau, program, committee or commission, etc. within the organization. If applicable.'), value=data.resource_division) }}
+    {{ form.input('resource_subdivision', label=_("Subdivision"), id='resource_subdivision', placeholder=_('Subdivision, bureau, program, committee or commission, etc. within the division. If applicable.'), value=data.resource_subdivision) }}
+    {{ form.input('data_source', label=_("Data Source"), id='data_source', placeholder=_('Original source of the data (e.g. USGS, OSE, etc.) if different from organization.'), value=data.data_source) }}
+
+    {% block basic_fields_format %}
+      {% set format_attrs = {'data-module': 'autocomplete', 'data-module-source': '/api/2/util/resource/format_autocomplete?incomplete=?'} %}
+      {% call form.input('format', id='field-format', label=_('Format'), placeholder=_('Describe the format of the data (PDF, CSV, etc.).'), value=data.format, error=errors.format, classes=['control-medium'], attrs=format_attrs) %}
+        <span class="info-block info-block-small">
+          <i class="fa fa-info-circle"></i>
+          {{ _('This will be guessed automatically. Leave blank if you wish') }}
+        </span>
+      {% endcall %}
+    {% endblock %}
+
+    {{ form.input('resource_contact_name', label=_("Contact Name"), id='resource_contact_name', placeholder=_('Point of contact name for data steward'), value=data.resource_contact_name, is_required=True, error=errors.resource_contact_name) }}
+    {{ form.input('resource_contact_email', label=_("Contact Email"), id='resource_contact_email', placeholder=_('Point of contact email for data steward'), value=data.resource_contact_email, is_required=True, error=errors.resource_contact_email) }}
+    {{ form.input('resource_contact_phone', label=_("Contact Phone"), id='resource_contact_phone', placeholder=_('Point of contact phone for data steward'), value=data.resource_contact_phone, error=errors.resource_contact_phone) }}
+    {{ form.input('data_uses', label=_("Known Uses of Data"), id='data_uses', placeholder=_('If certain agencies are known downstream consumers of the data, please list brief details about who they are and what aspects of the data are of interest to them.'), value=data.data_uses, error=errors.data_uses) }}
+    {{ form.input('collection_procedures', label=_("Data Collection Procedures"), id='collection_procedures', placeholder=_('Please include brief details  about how the data were collected. If certain protocols were followed, please include relevant details and DOI/URL if possible'), value=data.collection_procedures, error=errors.collection_procedures) }}
+    {{ form.input('collection_timeframe', label=_("Data Collection Timeframe"), id='collection_timeframe', placeholder=_('Describe the date range within which the data was collected, or if data collection is still ongoing'), value=data.collection_timeframe, error=errors.collection_timeframe, is_required=True) }}
+    {{ form.select('collection_frequency', label=_('Data Collection Frequency'), options=[{'name':'one-time', 'value':'one-time'},{'name':'daily', 'value':'daily'},{'name':'weekly', 'value':'weekly'},{'name':'monthly', 'value':'monthly'},{'name': 'annually', 'value': 'annually'}], selected=data.collection_frequency, error=errors.collection_frequency) }}
+    {{ form.input('preparation_method', label=_("Preparation Method"), id='preparation_method', placeholder=_('How is the data extracted (if it is part of a larger dataset) and prepared for publication? If the method uses a calculation, include the calculation in the description.'), value=data.preparation_method, error=errors.preparation_method) }}
+    {{ form.input('publish_method', label=_("Data Publishing Method"), id='publish_method', placeholder=_('How is the data published for use (website, print, API, etc.)?'), value=data.publish_method, error=errors.publish_method, is_required=True) }}
+    {{ form.select('publish_frequency', label=_('Data Publishing Frequency'), options=[{'name':'Not selected', 'value':''},{'name':'one-time', 'value':'one-time'},{'name':'daily', 'value':'daily'},{'name':'weekly', 'value':'weekly'},{'name':'monthly', 'value':'monthly'},{'name': 'annually', 'value': 'annually'}], selected=data.publish_frequency, error=errors.publish_frequency) }}
+    {{ form.input('quality_procedures', label=_("Data Quality Procedures"), id='quality_procedures', placeholder=_('Please include brief details  about how the data quality was reviewed. If certain protocols were followed, please include relevant details and DOI/URL if possible'), value=data.quality_procedures, error=errors.quality_procedures) }}
+    {% if data.resource_version %}
+        {% set version = data.resource_version %}
+    {% else %}
+        {% set version = '1.0' %}
+    {% endif %}
+    {{ form.input('resource_version', label=_("Version"), id='resource_version', placeholder=_(''), value=version, error=errors.resource_version) }}
+
+    {% block package_basic_fields_license %}
+    <div class="form-group">
+      {% set error = errors.license_id %}
+      <label class="control-label" for="field-license">{{ _("License") }}</label>
+      <div class="controls">
+        <div class="row">
+          <div class="col-md-6">
+            <select id="field-license" name="license_id" data-module="autocomplete">
+              {% set existing_license_id = data.get('license_id') %}
+              {% for license_id, license_desc in h.license_options(existing_license_id) %}
+              <option value="{{ license_id }}" {% if existing_license_id == license_id %}selected="selected"{% endif %}>{{ license_desc }}</option>
+              {% endfor %}
+            </select>
+            {% if error %}<span class="error-block">{{ error }}</span>{% endif %}
+          </div>
+          <div class="col-md-6">
+            <span class="info-block info-inline">
+              <i class="fa fa-info-circle"></i>
+              {% trans %}
+              License definitions and additional information can be found
+              at <a href="http://opendefinition.org/licenses/">opendefinition.org</a>
+              {% endtrans %}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endblock %}
+
+    {{ form.input('geographic_location', label=_("Geographic Location"), id='geographic_location', placeholder=_('The name of the location, area, or region where the data was collected'), value=data.geographic_location, error=errors.geographic_location) }}
+    {{ form.input('coordinate_system', label=_("Coordinate reference system"), id='coordinate_system', placeholder=_('Coordinate reference system if uploading spatial data such as GeoJSON (EPSG:26913 or NAD83 / UTM zone 13N).'), value=data.coordinate_system, error=errors.coordinate_system) }}
+    {{ form.markdown('data_dictionary', id='data_dictionary', label=_('Data Dictionary'), placeholder=_('Data dictionary listing field names, human readble translation of the field name, desciptions of the field names, and field data types.'), value=data.data_dictionary, error=errors.data_dictionary) }}
+
+    {% endblock basic_fields %}
+
+  <!-- {% block metadata_fields %}
+    {% if include_metadata %}
+      {# TODO: Where do these come from, they don't exist in /package/new_package_form.html #}
+      {# {{ form.select('resource_type', id='field-type', label=_('Resource Type'), options=[{'value': 'empty', 'text': _('Select a type…')}], selected="empty", error=errors.type) }} #}
+
+      {{ form.input('last_modified', id='field-last-modified', label=_('Last Modified'), placeholder=_('eg. 2012-06-05'), value=data.last_modified, error=errors.last_modified, classes=[]) }}
+
+      {{ form.input('size', id='field-size', label=_('File Size'), placeholder=_('eg. 1024'), value=data.size, error=errors.size, classes=[]) }}
+
+      {{ form.input('mimetype', id='field-mimetype', label=_('MIME Type'), placeholder=_('eg. application/json'), value=data.mimetype, error=errors.mimetype, classes=[]) }}
+
+      {{ form.input('mimetype_inner', id='field-mimetype-inner', label=_('MIME Type'), placeholder=_('eg. application/json'), value=data.mimetype_inner, error=errors.mimetype_inner, classes=[]) }}
+    {% endif %}
+  {% endblock %} -->
+
+  <div class="form-actions">
+    {% block delete_button %}
+      {% if data.id %}
+        {% if h.check_access('resource_delete', {'id': data.id})  %}
+          <a class="btn btn-danger pull-left" href="{% url_for controller='package', action='resource_delete', resource_id=data.id, id=pkg_name %}" data-module="confirm-action" data-module-content="{{ _('Are you sure you want to delete this resource?') }}">{% block delete_button_text %}{{ _('Delete') }}{% endblock %}</a>
+        {% endif %}
+      {% endif %}
+    {% endblock %}
+    {% if stage %}
+      {% block previous_button %}
+        <button class="btn btn-default" name="save" value="go-dataset" type="submit">{{ _('Previous') }}</button>
+      {% endblock %}
+      <p class="control-required-message">
+        <span class="control-required">*</span> {{ _("Required field") }}
+      </p>
+      {% block again_button %}
+        <button class="btn btn-default" name="save" value="again" type="submit">{{ _('Save & add another') }}</button>
+      {% endblock %}
+      {% block save_button %}
+        <button class="btn btn-primary" name="save" value="go-metadata" type="submit">{% block save_button_text %}{{ _('Finish') }}{% endblock %}</button>
+      {% endblock %}
+    {% else %}
+      <p class="control-required-message">
+        <span class="control-required">*</span> {{ _("Required field") }}
+      </p>
+      {% block add_button %}
+      <button class="btn btn-primary" name="save" value="go-dataset-complete" type="submit">{{ _('Add') }}</button>
+      {% endblock %}
+    {% endif %}
+  </div>
+</form>
